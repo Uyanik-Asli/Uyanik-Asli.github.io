@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asli Uyanik CV</title>
+<style>
+  body { margin: 0; background: #f1f1f1; font: 15px/1.4 Arial, sans-serif; color: #404040; }
+  #pages { max-width: 900px; margin: 0 auto; padding: 12px; }
+  canvas { display: block; width: 100%; height: auto; margin: 0 auto 12px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+  #msg { text-align: center; padding: 24px 12px; }
+  a { color: #4A66AC; }
+</style>
+</head>
+<body>
+<div id="pages"><p id="msg">Loading CV&hellip; <a href="Uyanik_Asli_CV.pdf" target="_blank" rel="noopener">Open the PDF</a></p></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  // Draws the CV with PDF.js so it shows inside sandboxed frames (Google Sites embeds),
+  // where Chrome blocks its built-in PDF viewer.
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const box = document.getElementById("pages");
+  pdfjsLib.getDocument("Uyanik_Asli_CV.pdf?v=" + Date.now()).promise.then(async (pdf) => {
+    document.getElementById("msg").remove();
+    const width = box.clientWidth - 24;
+    const ratio = window.devicePixelRatio || 1;
+    for (let n = 1; n <= pdf.numPages; n++) {
+      const page = await pdf.getPage(n);
+      const scale = (width / page.getViewport({ scale: 1 }).width) * ratio;
+      const view = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      canvas.width = view.width;
+      canvas.height = view.height;
+      box.appendChild(canvas);
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport: view }).promise;
+    }
+  }).catch(() => {
+    document.getElementById("msg").innerHTML =
+      'The CV could not be displayed here. <a href="Uyanik_Asli_CV.pdf" target="_blank" rel="noopener">Open the PDF</a>';
+  });
+</script>
+</body>
+</html>
